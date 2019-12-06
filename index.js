@@ -10,8 +10,11 @@ const users = ['John', 'David', 'Peter', 'Marie']
 
 server.get('/teste', (req, res) => {
     const nome = req.query.nome;
-
-    return res.json({ message: `Hello ${nome}` });
+    if (nome) {
+        return res.json({ message: `Hello mr. ${nome}` });
+    } else {
+        return res.json({ message: 'Welcome to Teste Page' });
+    }
 });
 
 server.get('/users/:id', (req, res) => {
