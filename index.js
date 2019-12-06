@@ -6,6 +6,8 @@ const server = express();
 // Route params = /users/1
 // Request body = { "name": "Teste", "email": "teste@mail.com" }
 
+const users = ['John', 'David', 'Peter', 'Marie']
+
 server.get('/teste', (req, res) => {
     const nome = req.query.nome;
 
@@ -13,9 +15,11 @@ server.get('/teste', (req, res) => {
 });
 
 server.get('/users/:id', (req, res) => {
-    const id = req.params.id;
+    // Desestruturação
+    const { id } = req.params;
 
-    return res.json({ message: `Usuário nº ${id} encontrado` });
+    // Irá retornar apenas o usuário (users) da posição do array (id)
+    return res.json(users[id]);
 });
 
 server.listen(3000);
