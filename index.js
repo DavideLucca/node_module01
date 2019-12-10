@@ -6,22 +6,48 @@ const server = express();
 // Adicionando modulo que indica ao Node, que deve ser lido JSON, do body das requests
 server.use(express.json());
 
-// Query params = ?teste=1
-// Route params = /users/1
-// Request body = { "name": "Teste", "email": "teste@mail.com" }
-
 const users = ['John', 'David', 'Peter', 'Marie']
+
+server.use((req, res, next) => {
+    // console.time(): utilizado para calcular o tempo das requisições. Deve ser colocado o console.timeEnd() para finaliza-lo
+    console.time('Request');
+    console.log(`Método: ${req.method}; URL: ${req.url}`);
+    next();
+    console.timeEnd('Request');
+});
+
+// Middleware para checar a existencia de dados no body da requisicao
+function checkUserExists(req, res, next) {
+    if (!req.body.name) {
+        return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    return next();
+}
+
+function checkUserInArray(req, res, next) {
+
+    const user = users[req.params.id];
+
+    if (!user) {
+        return res.status(400).json({ error: 'Usuário não encontrado' });
+    }
+
+    req.user = user;
+
+    return next();
+}
 
 server.get('/users', (req, res) => {
     res.send(users);
 });
 
-server.get('/users/:id', (req, res) => {
-    // Desestruturação
-    const { id } = req.params;
-
-    // Irá retornar apenas o usuário (users) da posição do array (id)
-    return res.json(users[id]);
+server.get('/users/:id', checkUserInArray, (req, res) => {
+    /**
+     *  Com a função checkUserInArray sendo passada como parametro, o retorno pode ser 'req.user' diretamente, já que o middleware onde
+     *  o user é definido é chamado nessa rota 
+     * */ 
+    return res.json(req.user);
 });
 
 server.post('/users', (req, res) => {
@@ -30,7 +56,8 @@ server.post('/users', (req, res) => {
     return res.send(users);
 });
 
-server.put('/users/:id', (req, res) => {
+// Middleware é chamado através do parametro abaixo
+server.put('/users/:id', checkUserInArray, checkUserExists, (req, res) => {
     const { id } = req.params;
     const { name } = req.body;
     users[id] = name
@@ -38,7 +65,7 @@ server.put('/users/:id', (req, res) => {
     return res.json(users);
 });
 
-server.delete('/users/:id', (req, res) => {
+server.delete('/users/:id', checkUserInArray, (req, res) => {
     const { id } = req.params;
     users.splice(id, 1)
 
