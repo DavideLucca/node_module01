@@ -7,6 +7,7 @@ Simple repository for Node.js tests
 - index.js file
 - package.json updated
 - Express.js micro-framework usage
-- GET routes with Query and Route params
+- GET, POST, PUT and DELETE routes
+- Nodemon packages added
 
 **New commits soon**
